@@ -5,13 +5,19 @@ const numberInput = document.querySelector('.number-input');
 const question = document.querySelector('.question');
 const score = document.querySelector('.score');
 const body = document.querySelector('body');
+const highScore = document.querySelector('.highscore');
 
 let scoreQt = 20;
+let bestResult = 0;
 
+/** functions **/
 const getSecretNumber = () => {
   let result = Math.trunc(Math.random() * 20) + 1;
   return result;
 };
+
+const displayGuessMessage = message => (guessMessage.textContent = message);
+
 let secretNumber = getSecretNumber();
 
 // console.log(secretNumber);
@@ -21,36 +27,29 @@ document.querySelector('.check').addEventListener('click', e => {
   /* NO UNPUT */
 
   if (!guessingNumber) {
-    guessMessage.textContent = 'Введите число!';
+    displayGuessMessage('Введите число!');
 
     /* PLAYER WON */
   } else if (guessingNumber === secretNumber) {
-    guessMessage.textContent = 'Правильно!';
+    displayGuessMessage('Правильно!');
     question.textContent = secretNumber;
     // body.style.backgroundColor = 'rgb(9, 250, 21)';
     // question.style.width = '50rem';
     body.classList.add('body-win');
     question.classList.add('question-win');
-
-    /* TOO HIGH */
-  } else if (guessingNumber > secretNumber) {
-    if (scoreQt > 1) {
-      guessMessage.textContent = 'Слишком много!';
-      scoreQt--;
-      score.textContent = scoreQt;
-    } else {
-      guessMessage.textContent = 'Game Over!';
-      score.textContent = 0;
+    if (bestResult < scoreQt) {
+      bestResult = scoreQt;
+      highScore.textContent = bestResult;
     }
-
-    /** TO LOW **/
-  } else if (guessingNumber < secretNumber) {
+  } else if (guessingNumber !== secretNumber) {
     if (scoreQt > 1) {
-      guessMessage.textContent = 'Слишком мало!';
+      displayGuessMessage(
+        guessingNumber > secretNumber ? 'Слишком много!' : 'Слишком мало!'
+      );
       scoreQt--;
       score.textContent = scoreQt;
     } else {
-      guessMessage.textContent = 'Game Over!';
+      displayGuessMessage('Game Over!');
       score.textContent = 0;
     }
   }
@@ -67,7 +66,7 @@ document.querySelector('.again').addEventListener('click', e => {
   question.textContent = '???';
   scoreQt = 20;
   score.textContent = scoreQt;
-  guessMessage.textContent = 'Начни угадывать!';
+  displayGuessMessage('Начни угадывать!');
   numberInput.value = '';
   secretNumber = getSecretNumber();
   // console.log(secretNumber);
