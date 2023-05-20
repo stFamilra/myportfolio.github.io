@@ -8,6 +8,7 @@
     <title>Свинья</title>
   </head>
   <body>
+    <button class="show-modal-window">📒Правила</button>
     <main>
       <section class="player player--0 player--active">
         <h2 class="name" id="name--0">Игрок 1</h2>
@@ -26,11 +27,32 @@
         </div>
       </section>
 
-      <img src="dice1.png" alt="Playing dice" class="dice hidden" />
+      <img src="dice1.png" alt="Playing dice" class="dice" />
       <button class="btn btn--new">🐷 Новая игра</button>
       <button class="btn btn--roll">🎲 Бросить кубик</button>
       <button class="btn btn--hold">👌 Оставить</button>
     </main>
+
+    <div class="modal-window hidden">
+      <button class="close-modal-window">&times;</button>
+      <h1>Правила игры</h1>
+      <ul class="items">
+        <li class="item">
+          Игрок кидает кость. Выпавшее число - очки, которые игрок может
+          получить.
+        </li>
+        <li class="item">Нажмите "бросить кубик", чтобы начать.</li>
+        <li class="item">"Игрок 1" начинает игру.</li>
+        <li class="item">Если выпало 1, то ход переходит к другому игроку.</li>
+        <li class="item">
+          Если выпало число больше 1, то можно либо оставить очки себе и
+          передать ход сопернику, либо продолжить бросать кости и зарабатывать
+          очки до тех пор, пока не выпадет число 1.
+        </li>
+        <li class="item">Побеждает тот, кто первым наберёт 100 очков.</li>
+      </ul>
+    </div>
+    <div class="overlay hidden"></div>
     <script src="script.js"></script>
   </body>
 </html>
