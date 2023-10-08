@@ -18,6 +18,11 @@ const header = document.querySelector('.header');
 const allSection = document.querySelectorAll('.section');
 const lazyImages = document.querySelectorAll('img[data-src]');
 const services = document.querySelector('.services');
+const slides = document.querySelectorAll('.slide');
+const sliderBtns = document.querySelectorAll('.slider__btn');
+const sliderBtnRight = document.querySelector('.slider__btn--right');
+const sliderBtnLeft = document.querySelector('.slider__btn--left');
+const dotContainer = document.querySelector('.dots');
 
 const openModalWindow = function (e) {
   e.preventDefault();
@@ -48,6 +53,55 @@ const setOpacity = function (e) {
     logoText.style.opacity = this;
   }
 };
+
+const moveToSlide = slide => {
+  slides.forEach((current, index) => {
+    current.style.transform = `translateX(${(index - slide) * 100}%)`;
+  });
+};
+
+const previousSlide = slide => {
+  if (currentSlide === 0) {
+    currentSlide = slides.length - 1;
+  } else {
+    currentSlide--;
+  }
+
+  moveToSlide(currentSlide);
+  activateCurrentDot(currentSlide);
+};
+
+const nextSlide = slide => {
+  if (currentSlide === slides.length - 1) {
+    currentSlide = 0;
+  } else {
+    currentSlide++;
+  }
+
+  moveToSlide(currentSlide);
+  activateCurrentDot(currentSlide);
+};
+
+const createDots = () => {
+  slides.forEach((_, index) => {
+    dotContainer.insertAdjacentHTML(
+      'beforeend',
+      `<button class="dots__dot" data-slide="${index}"></button>`
+    );
+  });
+};
+
+createDots();
+
+const activateCurrentDot = slide => {
+  document
+    .querySelectorAll('.dots__dot')
+    .forEach(current => current.classList.remove('dots__dot--active'));
+  document
+    .querySelector(`.dots__dot[data-slide="${slide}"]`)
+    .classList.add('dots__dot--active');
+};
+activateCurrentDot(0);
 
 btnsOpenModalWindow.forEach(current =>
   current.addEventListener('click', openModalWindow)
@@ -175,4 +229,26 @@ const loadingObserve = new IntersectionObserver(
 
 lazyImages.forEach(current => {
   loadingObserve.observe(current);
+});
+
+// Create the slider
+let currentSlide = 0;
+
+moveToSlide(0);
+
+sliderBtnLeft.addEventListener('click', previousSlide);
+
+sliderBtnRight.addEventListener('click', nextSlide);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') previousSlide();
+  if (e.key === 'ArrowRight') nextSlide();
+});
+
+dotContainer.addEventListener('click', e => {
+  if (e.target.classList.contains('dots__dot')) {
+    const slide = e.target.dataset.slide;
+    moveToSlide(slide);
+    activateCurrentDot(slide);
+  }
 });
