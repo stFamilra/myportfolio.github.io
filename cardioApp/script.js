@@ -77,3 +77,8 @@ form.addEventListener('submit', e => {
     .setPopupContent('Тренировка')
     .openPopup();
 });
+
+inputType.addEventListener('change', e => {
+  inputClimb.closest('.form__row').classList.toggle('form__row--hidden');
+  inputTemp.closest('.form__row').classList.toggle('form__row--hidden');
+});
