@@ -12,6 +12,7 @@ const inputClimb = document.querySelector('.form__input--climb');
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
+  clickNumber = 0;
   constructor(coords, distance, duration) {
     this.distance = distance; // km
     this.duration = duration; // min
@@ -27,6 +28,10 @@ class Workout {
     this.type === 'running'
       ? (this.description = `Пробежка ${date}`)
       : (this.description = `Велотренировка ${date}`);
+  }
+
+  click() {
+    this.clickNumber++;
   }
 }
 
@@ -61,10 +66,24 @@ class App {
   #mapEvent;
   #workouts = [];
   constructor() {
+    // Получение местоположения пользователя
     this._getPosition();
-    form.addEventListener('submit', this._newWorkout.bind(this));
 
+    // Получения данных из local storage
+    this._getLocalStorageData();
+
+    form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleClimbField);
+    containerWorkouts.addEventListener('click', this._moveToWorkout.bind(this));
+    document.querySelector('.sidebar').insertAdjacentHTML(
+      'beforeend',
+      `
+    <button class="reset">Очистить страницу</button>
+    `
+    );
+    document
+      .querySelector('.reset')
+      .addEventListener('click', e => this.reset());
   }
   _getPosition() {
     //проверяем, есть ли у браузера возможность получить геолокацию
@@ -110,6 +129,11 @@ class App {
     //   );
     //   .setPopupContent('Тренировка')
     //   .openPopup();
+
+    // Отображение тренировок из Local storage на карте
+    this.#workouts.forEach(cur => {
+      this._displayWorkout(cur);
+    });
   }
 
   _showForm(e) {
@@ -180,7 +204,10 @@ class App {
     this._displayWorkoutOnSidebar(workout);
     // Спрятать форму и очистить поля ввода данных
     this._closeForm.call(this);
+    // Добавить все тренировки в локальное хранилище
+    this._addWorkoutsToLocalStorage();
   }
+
   _displayWorkout(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
@@ -246,6 +273,49 @@ class App {
     }
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  _moveToWorkout(e) {
+    const workoutElement = e.target.closest('.workout');
+    if (!workoutElement) return;
+    const workout = this.#workouts.find(
+      cur => cur.id === workoutElement.dataset.id
+    );
+
+    this.#map.setView(workout.coords, 13, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+
+    workout.click();
+    console.log(workout);
+  }
+
+  _addWorkoutsToLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorageData() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    if (!data) return;
+    console.log(data);
+    this.#workouts = data.map(cur =>
+      cur.type === 'running'
+        ? new Running(cur.coords, cur.distance, cur.duration, cur.temp)
+        : new Cycling(cur.coords, cur.distance, cur.duration, cur.climb)
+    );
+    this.#workouts.forEach(cur => {
+      this._displayWorkoutOnSidebar(cur);
+    });
+    console.log(this.#workouts);
+  }
+
+  reset() {
+    localStorage.removeItem('workouts');
+    // С помощью метода //.reload() можно перезапустить страницу
+    location.reload();
   }
 }
 

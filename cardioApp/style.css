@@ -218,3 +218,17 @@ a:visited {
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
 }
+
+.reset,
+.reset:hover,
+.reset:active {
+  font-family: Arial, Helvetica, sans-serif;
+  align-self: center;
+  border: none;
+  background: none;
+  color: #ffff;
+}
+
+.reset:hover {
+  cursor: pointer;
+}
