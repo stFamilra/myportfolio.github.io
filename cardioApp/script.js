@@ -294,13 +294,16 @@ class App {
   }
 
   _addWorkoutsToLocalStorage() {
+    // Переводим массив объектов в строку
     localStorage.setItem('workouts', JSON.stringify(this.#workouts));
   }
 
   _getLocalStorageData() {
+    // Переводим строку в массив объектов, но эти объекты уже не будут экземплярами классов Running или Cycling
     const data = JSON.parse(localStorage.getItem('workouts'));
     if (!data) return;
     console.log(data);
+    // Создаём из массива  data новый массив с объектами, которые уже будут экземплярами классов Running или Cycling
     this.#workouts = data.map(cur =>
       cur.type === 'running'
         ? new Running(cur.coords, cur.distance, cur.duration, cur.temp)
