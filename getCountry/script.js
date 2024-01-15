@@ -2,6 +2,7 @@
 
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
+const images = document.querySelector('.images');
 
 const displayCountry = function (data, className = '') {
   const currensies = data.currencies;
@@ -36,7 +37,95 @@ const displayError = function (message) {
   // countriesContainer.style.opacity = 1;
 };
 
+const getCountryAndBorderCountries = function (countryName) {
+  // Вызов AJAX для получения данных о стране
+  // Old method
+  const request1 = new XMLHttpRequest();
+  // Открываем запрос
+  request1.open('GET', `https://restcountries.com/v3.1/name/${countryName}`);
+
+  // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
+  request1.send();
+
+  // Когда данные будут загружены, сработает слушатель событий(eventListener)
+  request1.addEventListener('load', function () {
+    // Используем деструктуризацию, чтобы вывести объект из массива, так как изначально this.responseText - это JSON-строка, находящаяся внутри массива
+    const [data1] = JSON.parse(this.responseText);
+    console.log(data1);
+
+    //Отобрадение страны
+    displayCountry(data1);
+
+    // Получаем первую соседнюю страну
+    const [firstHeighbour] = data1.borders;
+
+    if (!firstHeighbour) return;
+
+    // Вызов AJAX для получения данных о соседней стране
+    const request2 = new XMLHttpRequest();
+    // Открываем запрос
+    request2.open(
+      'GET',
+      `https://restcountries.com/v3.1/alpha/${firstHeighbour}`
+    );
+
+    // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
+    request2.send();
+
+    request2.addEventListener('load', function () {
+      const [data2] = JSON.parse(this.responseText);
+      console.log(data2);
+      displayCountry(data2, 'neighbour');
+    });
+  });
+};
+
+const getDataAndConvertToJSON = function (
+  url,
+  errorMessage = 'Что-то пошло не так.'
+) {
+  return fetch(url).then(response => {
+    if (!response.ok)
+      throw new Error(`${errorMessage} Ошибка ${response.status}`);
+    return response.json();
+  });
+};
+
+const getCountryData = function (countryName) {
+  getDataAndConvertToJSON(
+    `https://restcountries.com/v3.1/name/${countryName}`,
+    'Страна не найдена.'
+  )
+    .then(function (data) {
+      displayCountry(data[0]);
+      if (!data[0].borders) throw new Error('У страны нет соседей!');
+
+      const firstNeighbour = data[0].borders[0];
+      // if (!firstNeighbour) throw new Error('У страны нет соседей!');
+
+      return getDataAndConvertToJSON(
+        `https://restcountries.com/v3.1/alpha/${firstNeighbour}`,
+        'Страна не найдена.'
+      );
+    })
+    .then(data => displayCountry(data[0], 'neighbour'))
+    .catch(error => {
+      console.log(`error:`, error);
+      console.log(`message:`, error.message);
+      console.error(`${error}`);
+      displayError(`Запрос отклонён. ${error.message}`);
+    })
+    .finally(() => {
+      countriesContainer.style.opacity = 1;
+    });
+};
+
+btn.addEventListener('click', function () {
+  getCountryData('japan');
+});
+
 //////////////////////////////////////////////////////
+
 // const getCountryData = function (countryName) {
 //   // Old method
 //   const request = new XMLHttpRequest();
@@ -79,48 +168,48 @@ const displayError = function (message) {
 //   });
 // };
 
-const getCountryAndBorderCountries = function (countryName) {
-  // Вызов AJAX для получения данных о странеы
-  // Old method
-  const request1 = new XMLHttpRequest();
-  // Открываем запрос
-  request1.open('GET', `https://restcountries.com/v3.1/name/${countryName}`);
+// const getCountryAndBorderCountries = function (countryName) {
+//   // Вызов AJAX для получения данных о странеы
+//   // Old method
+//   const request1 = new XMLHttpRequest();
+//   // Открываем запрос
+//   request1.open('GET', `https://restcountries.com/v3.1/name/${countryName}`);
 
-  // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
-  request1.send();
+//   // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
+//   request1.send();
 
-  // Когда данные будут загружены, сработает слушатель событий(eventListener)
-  request1.addEventListener('load', function () {
-    // Используем деструктуризацию, чтобы вывести объект из массива, так как изначально this.responseText - это JSON-строка, находящаяся внутри массива
-    const [data1] = JSON.parse(this.responseText);
-    console.log(data1);
+//   // Когда данные будут загружены, сработает слушатель событий(eventListener)
+//   request1.addEventListener('load', function () {
+//     // Используем деструктуризацию, чтобы вывести объект из массива, так как изначально this.responseText - это JSON-строка, находящаяся внутри массива
+//     const [data1] = JSON.parse(this.responseText);
+//     console.log(data1);
 
-    //Отобрадение страны
-    displayCountry(data1);
+//     //Отобрадение страны
+//     displayCountry(data1);
 
-    // Получаем первую соседнюю страну
-    const [firstHeighbour] = data1.borders;
+//     // Получаем первую соседнюю страну
+//     const [firstHeighbour] = data1.borders;
 
-    if (!firstHeighbour) return;
+//     if (!firstHeighbour) return;
 
-    // Вызов AJAX для получения данных о соседней стране
-    const request2 = new XMLHttpRequest();
-    // Открываем запрос
-    request2.open(
-      'GET',
-      `https://restcountries.com/v3.1/alpha/${firstHeighbour}`
-    );
+//     // Вызов AJAX для получения данных о соседней стране
+//     const request2 = new XMLHttpRequest();
+//     // Открываем запрос
+//     request2.open(
+//       'GET',
+//       `https://restcountries.com/v3.1/alpha/${firstHeighbour}`
+//     );
 
-    // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
-    request2.send();
+//     // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
+//     request2.send();
 
-    request2.addEventListener('load', function () {
-      const [data2] = JSON.parse(this.responseText);
-      console.log(data2);
-      displayCountry(data2, 'neighbour');
-    });
-  });
-};
+//     request2.addEventListener('load', function () {
+//       const [data2] = JSON.parse(this.responseText);
+//       console.log(data2);
+//       displayCountry(data2, 'neighbour');
+//     });
+//   });
+// };
 // Карточки со странами могут отображаться каждый раз в разном порядке. Это из-за того, что ответы на запросы приходят в разное время. У какой страны первее пришёл запрос, та карточка и будет выводиться первой
 
 // getCountryAndBorderCountries('Russia');
@@ -135,16 +224,16 @@ const getCountryAndBorderCountries = function (countryName) {
 
 // new method
 
-const getDataAndConvertToJSON = function (
-  url,
-  errorMessage = 'Что-то пошло не так.'
-) {
-  return fetch(url).then(response => {
-    if (!response.ok)
-      throw new Error(`${errorMessage} Ошибка ${response.status}`);
-    return response.json();
-  });
-};
+// const getDataAndConvertToJSON = function (
+//   url,
+//   errorMessage = 'Что-то пошло не так.'
+// ) {
+//   return fetch(url).then(response => {
+//     if (!response.ok)
+//       throw new Error(`${errorMessage} Ошибка ${response.status}`);
+//     return response.json();
+//   });
+// };
 
 // const getCountryData = function (countryName) {
 //   // Такой вызов сразу возвращает нам promice, и в самом начале он находится в состоянии ожидания(pendind), потому что ассинхронная задача длится какое-то время в фоновом режиме
@@ -198,65 +287,228 @@ const getDataAndConvertToJSON = function (
 //     });
 // };
 
-const getCountryData = function (countryName) {
-  getDataAndConvertToJSON(
-    `https://restcountries.com/v3.1/name/${countryName}`,
-    'Страна не найдена.'
-  )
-    .then(function (data) {
-      displayCountry(data[0]);
-      if (!data[0].borders) throw new Error('У страны нет соседей!');
+// const getCountryData = function (countryName) {
+//   getDataAndConvertToJSON(
+//     `https://restcountries.com/v3.1/name/${countryName}`,
+//     'Страна не найдена.'
+//   )
+//     .then(function (data) {
+//       displayCountry(data[0]);
+//       if (!data[0].borders) throw new Error('У страны нет соседей!');
 
-      const firstNeighbour = data[0].borders[0];
-      // if (!firstNeighbour) throw new Error('У страны нет соседей!');
+//       const firstNeighbour = data[0].borders[0];
+//       // if (!firstNeighbour) throw new Error('У страны нет соседей!');
 
-      return getDataAndConvertToJSON(
-        `https://restcountries.com/v3.1/alpha/${firstNeighbour}`,
-        'Страна не найдена.'
-      );
-    })
-    .then(data => displayCountry(data[0], 'neighbour'))
-    .catch(error => {
-      console.log(`error:`, error);
-      console.log(`message:`, error.message);
-      console.error(`${error}`);
-      displayError(`Запрос отклонён. ${error.message}`);
-    })
-    .finally(() => {
-      countriesContainer.style.opacity = 1;
-    });
-};
+//       return getDataAndConvertToJSON(
+//         `https://restcountries.com/v3.1/alpha/${firstNeighbour}`,
+//         'Страна не найдена.'
+//       );
+//     })
+//     .then(data => displayCountry(data[0], 'neighbour'))
+//     .catch(error => {
+//       console.log(`error:`, error);
+//       console.log(`message:`, error.message);
+//       console.error(`${error}`);
+//       displayError(`Запрос отклонён. ${error.message}`);
+//     })
+//     .finally(() => {
+//       countriesContainer.style.opacity = 1;
+//     });
+// };
 
-btn.addEventListener('click', function () {
-  getCountryData('japan');
-});
+// btn.addEventListener('click', function () {
+//   getCountryData('japan');
+// });
 
 // функция displayCountryByGPS отображает на странице страну, координаты которой переданы в аргументы
 // lat(latitude) - широта; lng(longitude) - долгота!
 // API работает с VPN!! Без него будет вылезать ошибка.
-const displayCountryByGPS = function (lat, lng) {
-  fetch(
-    `https://geocode.xyz/${lat},${lng}?geoit=json&auth=520982546676250361625x14576 `
-  )
-    .then(response => {
-      console.log(response);
-      if (!response.ok) throw new Error(`Запрос не удался!`);
-      return response.json();
-    })
-    .then(response => {
-      console.log(response);
-      if (!response.region)
-        throw new Error(`По этим координатам страна не найдена!`);
-      console.log(`You are in ${response.region}`);
-      // Отображаем страну
-      getCountryData(response.country);
-    })
-    .catch(error => {
-      console.error(`${error}`);
-      displayError(`Запрос отклонён. ${error.message}`);
-    });
-};
+// const displayCountryByGPS = function (lat, lng) {
+//   fetch(
+//     `https://geocode.xyz/${lat},${lng}?geoit=json&auth=520982546676250361625x14576 `
+//   )
+//     .then(response => {
+//       console.log(response);
+//       if (!response.ok) throw new Error(`Запрос не удался!`);
+//       return response.json();
+//     })
+//     .then(response => {
+//       console.log(response);
+//       if (!response.region)
+//         throw new Error(`По этим координатам страна не найдена!`);
+//       console.log(`You are in ${response.region}`);
+//       // Отображаем страну
+//       getCountryData(response.country);
+//     })
+//     .catch(error => {
+//       console.error(`${error}`);
+//       displayError(`Запрос отклонён. ${error.message}`);
+//     });
+// };
 
-displayCountryByGPS(35.756, 139.256);
-displayCountryByGPS(48.857, 2.358);
-displayCountryByGPS(40.708, -74.051);
+// displayCountryByGPS(35.756, 139.256);
+// displayCountryByGPS(48.857, 2.358);
+// displayCountryByGPS(40.708, -74.051);
+
+//////////////////////////////////
+// !!! --- Пример работы с циклом событий(с event loop) --- !!!
+
+// console.log('Начало теста');
+
+// // Callback-функция внутри setTimeOut будет помещена в очередь callbacks через 0 секунд
+// setTimeout(() => console.log('Таймер 0 секунду'), 0);
+
+// // С помощью метода .resolve() мы создаём промис, у которого сразу же будет значение "Успех"
+// Promise.resolve('Выполненное promise 1').then(result => console.log(result));
+// console.log('Конец теста');
+
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('Происходит розыгрыш!');
+//   setTimeout(function () {
+//     if (Math.random() >= 0.5) {
+//       resolve('Вы выиграли!');
+//     } else {
+//       reject(new Error('Вы проиграли!'));
+//     }
+//   }, 3000);
+// });
+
+// lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+// Promisifying (промисификация) функции setTimeout().
+// Промисификация - это преобразование callback в promise.
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// wait(3)
+//   .then(() => {
+//     console.log('Длительность ожидания 3 секунды');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log('Длительность ожидания 2 секунды');
+//   });
+
+// wait(1)
+//   .then(() => {
+//     console.log('Прошла 1 секунда');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('Прошло 2 секунды');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('Прошло 3 секунды');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('Прошло 4 секунды');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('Прошло 5 секунды');
+//     return wait(1);
+//   });
+
+// const waitSeconds = function (sec) {
+//   for (let i = 1; i <= sec; i++) {
+//     wait(i).then(() => {
+//       console.log(`Прошло ${i} секунды`);
+//     });
+//   }
+// };
+
+// waitSeconds(5);
+
+////////////////////
+// Промисификация API Геолокации
+
+// const getUserPosition = function () {
+//   return new Promise(function (resolve, reject) {
+//     //   navigator.geolocation.getCurrentPosition(
+//     //     position => resolve(position),
+//     //     e => reject(console.error(e))
+//     //   );
+//     // Это то же самое:
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+
+// getUserPosition()
+//   .then(pos => console.log(pos))
+//   .catch(e => console.error(e));
+
+// const displayUserCountry = function () {
+//   getUserPosition()
+//     .then(pos => {
+//       const { latitude: lat, longitude: lng } = pos.coords;
+
+//       return fetch(
+//         `https://geocode.xyz/${lat},${lng}?geoit=json&auth=520982546676250361625x14576 `
+//       );
+//     })
+//     .then(response => {
+//       console.log(response);
+//       if (!response.ok) throw new Error(`Запрос не удался!`);
+//       return response.json();
+//     })
+//     .then(response => {
+//       console.log(response);
+//       if (!response.region)
+//         throw new Error(`По этим координатам страна не найдена!`);
+//       console.log(`You are in ${response.region}`);
+//       // Отображаем страну
+//       getCountryData(response.country);
+//     })
+//     .catch(error => {
+//       console.error(`${error}`);
+//       displayError(`Запрос отклонён. ${error.message}`);
+//     });
+// };
+
+// displayUserCountry();
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// let currentImage;
+
+// const createImageElement = function (imagePath) {
+//   return new Promise(function (resolve, reject) {
+//     const imgEl = document.createElement('img');
+//     imgEl.src = imagePath;
+//     console.log(imgEl);
+//     imgEl.addEventListener('load', e => {
+//       images.insertAdjacentElement('beforeend', imgEl);
+//       resolve(imgEl);
+//     });
+
+//     imgEl.addEventListener('error', e => {
+//       reject(new Error('Изображение не найдено!'));
+//     });
+//   });
+// };
+
+// createImageElement('img/image1.jpg')
+//   .then(image => {
+//     currentImage = image;
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currentImage.style.display = 'none';
+//     return createImageElement('img/image2.jpg');
+//   })
+//   .then(image => {
+//     currentImage = image;
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currentImage.style.display = 'none';
+//   })
+//   .catch(e => console.error(e));
