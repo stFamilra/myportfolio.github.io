@@ -34,7 +34,7 @@ const displayCountry = function (data, className = '') {
 // Отображаем ошибку для пользователя, если запрос отклонён
 const displayError = function (message) {
   countriesContainer.insertAdjacentText('beforeend', message);
-  // countriesContainer.style.opacity = 1;
+  countriesContainer.style.opacity = 1;
 };
 
 const getCountryAndBorderCountries = function (countryName) {
@@ -91,38 +91,38 @@ const getDataAndConvertToJSON = function (
   });
 };
 
-const getCountryData = function (countryName) {
-  getDataAndConvertToJSON(
-    `https://restcountries.com/v3.1/name/${countryName}`,
-    'Страна не найдена.'
-  )
-    .then(function (data) {
-      displayCountry(data[0]);
-      if (!data[0].borders) throw new Error('У страны нет соседей!');
+// const getCountryData = function (countryName) {
+//   getDataAndConvertToJSON(
+//     `https://restcountries.com/v3.1/name/${countryName}`,
+//     'Страна не найдена.'
+//   )
+//     .then(function (data) {
+//       displayCountry(data[0]);
+//       if (!data[0].borders) throw new Error('У страны нет соседей!');
 
-      const firstNeighbour = data[0].borders[0];
-      // if (!firstNeighbour) throw new Error('У страны нет соседей!');
+//       const firstNeighbour = data[0].borders[0];
+//       // if (!firstNeighbour) throw new Error('У страны нет соседей!');
 
-      return getDataAndConvertToJSON(
-        `https://restcountries.com/v3.1/alpha/${firstNeighbour}`,
-        'Страна не найдена.'
-      );
-    })
-    .then(data => displayCountry(data[0], 'neighbour'))
-    .catch(error => {
-      console.log(`error:`, error);
-      console.log(`message:`, error.message);
-      console.error(`${error}`);
-      displayError(`Запрос отклонён. ${error.message}`);
-    })
-    .finally(() => {
-      countriesContainer.style.opacity = 1;
-    });
-};
+//       return getDataAndConvertToJSON(
+//         `https://restcountries.com/v3.1/alpha/${firstNeighbour}`,
+//         'Страна не найдена.'
+//       );
+//     })
+//     .then(data => displayCountry(data[0], 'neighbour'))
+//     .catch(error => {
+//       console.log(`error:`, error);
+//       console.log(`message:`, error.message);
+//       console.error(`${error}`);
+//       displayError(`Запрос отклонён. ${error.message}`);
+//     })
+//     .finally(() => {
+//       countriesContainer.style.opacity = 1;
+//     });
+// };
 
-btn.addEventListener('click', function () {
-  getCountryData('japan');
-});
+// btn.addEventListener('click', function () {
+//   getCountryData('japan');
+// });
 
 //////////////////////////////////////////////////////
 
@@ -512,3 +512,182 @@ btn.addEventListener('click', function () {
 //     currentImage.style.display = 'none';
 //   })
 //   .catch(e => console.error(e));
+
+// const getUserPosition = function () {
+//   return new Promise(function (resolve, reject) {
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+
+// // Когда мы ставим async перед словом function, то такая функция будет работать ассинхронно(в фоновом режиме) и вернёт промис, когда код внутри полностью будет выполнен
+// const getCountryData = async function () {
+//   // await останавливает код ВНУТРИ функции, пока не получит выполненное promice(то есть код снаружи функции останавливаться не будет, а значит, что стек вызовов блокироваться не будет)
+
+//   try {
+//     const userPosition = await getUserPosition();
+//     const { latitude: lat, longitude: lng } = userPosition.coords;
+
+//     const geocodingResponse = await fetch(
+//       `https://geocode.xyz/${lat},${lng}?geoit=json&auth=520982546676250361625x14576 `
+//     );
+
+//     if (!geocodingResponse.ok)
+//       throw new Error('Проблема с извлечением  местоположения');
+
+//     const geocodingData = await geocodingResponse.json();
+//     console.log('geocodingData: ', geocodingData);
+
+//     const response = await fetch(
+//       `https://restcountries.com/v3.1/name/${geocodingData.country.toLowerCase()}`
+//     );
+
+//     if (!response.ok) throw new Error('Проблема с получением страны');
+
+//     const data = await response.json();
+//     console.log('data:', data);
+//     displayCountry(data[0]);
+
+//     return `You're in ${geocodingData.city}, ${geocodingData.country}`;
+//   } catch (e) {
+//     console.error(`Ошибка! ${e}`);
+//     displayError(`Что-то пошло не так. ${e.message}`);
+
+//     // Отклоняем promise, возвращаемое из ассинхронной функции
+//     throw e;
+//   }
+
+//   // то же самое, только без asyncAwait:
+//   // fetch(`https://restcountries.com/v3.1/name/${geocodingData}`).then(response =>
+//   //   console.log(response)
+//   // );
+// };
+
+// getCountryData()
+//   .then(place => console.log(place))
+//   .catch(err => console.log(err.message))
+//   .finally(() => console.log('Получили местоположение!'));
+
+// Делаем код выше, но с помощью asyncAwait
+// Т.к await можно использовать лишь в паре с async, будем создавать IIFE
+
+// (async function () {
+//   try {
+//     const place = await getCountryData();
+//     console.log('countryData:', place);
+//   } catch (err) {
+//     console.log(err.message);
+//   }
+//   console.log('Получили местоположение!');
+// })();
+
+const print3CountriesCapitals = async function (country1, country2, country3) {
+  try {
+    // const [country1Data] = await getDataAndConvertToJSON(
+    //   `https://restcountries.com/v3.1/name/${country1}`
+    // );
+    // const [country2Data] = await getDataAndConvertToJSON(
+    //   `https://restcountries.com/v3.1/name/${country2}`
+    // );
+    // const [country3Data] = await getDataAndConvertToJSON(
+    //   `https://restcountries.com/v3.1/name/${country3}`
+    // );
+
+    // Когда нам нужно выполнить несколько ассинхронных операций, которые не зависят друг от друга, нам нужно выполнить их параллельно:
+    const countriesData = await Promise.all([
+      getDataAndConvertToJSON(
+        `https://restcountries.com/v3.1/name/${country1}`
+      ),
+      getDataAndConvertToJSON(
+        `https://restcountries.com/v3.1/name/${country2}`
+      ),
+      getDataAndConvertToJSON(
+        `https://restcountries.com/v3.1/name/${country3}`
+      ),
+    ]);
+
+    console.log(countriesData.map(countryData => countryData[0].capital));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//////////////////////////////////////////////
+
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+const createImageElement = function (imagePath) {
+  return new Promise(function (resolve, reject) {
+    const imgEl = document.createElement('img');
+    imgEl.src = imagePath;
+    console.log(imgEl);
+    imgEl.addEventListener('load', e => {
+      images.insertAdjacentElement('beforeend', imgEl);
+      resolve(imgEl);
+    });
+
+    imgEl.addEventListener('error', e => {
+      reject(new Error('Изображение не найдено!'));
+    });
+  });
+};
+// createImageElement('img/image1.jpg')
+//   .then(image => {
+//     currentImage = image;
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currentImage.style.display = 'none';
+//     return createImageElement('img/image2.jpg');
+//   })
+//   .then(image => {
+//     currentImage = image;
+//     return wait(2);
+//   })
+//   .then(() => {
+//     currentImage.style.display = 'none';
+//   })
+//   .catch(e => console.error(e));
+
+const loadAndWait = async function () {
+  try {
+    // loading the first image
+    let image = await createImageElement('img/image1.jpg');
+    await wait(2);
+    image.style.display = 'none';
+
+    // loading the second image
+    image = await createImageElement('img/image2.jpg');
+    await wait(2);
+    image.style.display = 'none';
+
+    // loading the third image
+    image = await createImageElement('img/image3.jpg');
+    await wait(2);
+    image.style.display = 'none';
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// loadAndWait('img/image1.jpg', 'img/image2.jpg', 'img/image3.jpg');
+
+// loadAndWait();
+
+// const loadAllImages = async function (imagePathsArray) {
+//   try {
+//     const images = await Promise.all(
+//       imagePathsArray.map(async cur => await createImageElement(cur))
+//     );
+
+//     images.forEach(image => image.classList.add('parallel'));
+//     console.log(images);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
+// loadAllImages(['img/image1.jpg', 'img/image2.jpg', 'img/image3.jpg']);
