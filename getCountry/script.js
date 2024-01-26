@@ -19,7 +19,7 @@ const displayCountry = function (data, className = '') {
 <h3 class="country__name">${officialName}</h3>
 <h4 class="country__region">${data.region}</h4>
 <p class="country__row"><span>👨‍👩‍👧‍👦</span>${(data.population / 1000000).toFixed(
-    1
+    1,
   )} millions</p>
 <p class="country__row"><span>🗣️</span>${[
     ...Object.values(data.languages),
@@ -66,7 +66,7 @@ const getCountryAndBorderCountries = function (countryName) {
     // Открываем запрос
     request2.open(
       'GET',
-      `https://restcountries.com/v3.1/alpha/${firstHeighbour}`
+      `https://restcountries.com/v3.1/alpha/${firstHeighbour}`,
     );
 
     // Отправляем запрос GET по url. Этот запрос будет извлекать данные в фоновом режиме(т.е ассинхронно)
@@ -82,7 +82,7 @@ const getCountryAndBorderCountries = function (countryName) {
 
 const getDataAndConvertToJSON = function (
   url,
-  errorMessage = 'Что-то пошло не так.'
+  errorMessage = 'Что-то пошло не так.',
 ) {
   return fetch(url).then(response => {
     if (!response.ok)
@@ -595,13 +595,13 @@ const print3CountriesCapitals = async function (country1, country2, country3) {
     // Когда нам нужно выполнить несколько ассинхронных операций, которые не зависят друг от друга, нам нужно выполнить их параллельно:
     const countriesData = await Promise.all([
       getDataAndConvertToJSON(
-        `https://restcountries.com/v3.1/name/${country1}`
+        `https://restcountries.com/v3.1/name/${country1}`,
       ),
       getDataAndConvertToJSON(
-        `https://restcountries.com/v3.1/name/${country2}`
+        `https://restcountries.com/v3.1/name/${country2}`,
       ),
       getDataAndConvertToJSON(
-        `https://restcountries.com/v3.1/name/${country3}`
+        `https://restcountries.com/v3.1/name/${country3}`,
       ),
     ]);
 
