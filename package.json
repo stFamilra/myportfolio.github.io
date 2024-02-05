@@ -3,6 +3,7 @@
     "prettier": "^3.0.0-alpha.6"
   },
   "dependencies": {
+    "macro-css": "^1.0.5",
     "node-sass": "^9.0.0"
   }
 }
