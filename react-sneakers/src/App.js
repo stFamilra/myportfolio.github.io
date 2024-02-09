@@ -1,35 +1,56 @@
+import React from "react";
 import Card from "./components/Card";
 import Header from "./components/Header";
 import Drawer from "./components/Drawer";
 
-const sneakerCards = [
-  {
-    name: "Мужские Кроссовки Under Armour Curry 8",
-    price: 12999,
-    src: "/img/sneakers/1.jpg",
-  },
-  {
-    name: "Мужские Кроссовки Nike Blazer Mid Suede",
-    price: 8499,
-    src: "/img/sneakers/2.jpg",
-  },
-  {
-    name: "Мужские Кроссовки Nike Lebron XVIII Low",
-    price: 13999,
-    src: "/img/sneakers/3.jpg",
-  },
-  {
-    name: "Мужские Кроссовки Nike Kyrie 7",
-    price: 11299,
-    src: "/img/sneakers/4.jpg",
-  },
-];
+// let sneakerCards = [];
+// const getSneakersArray = async function () {
+//   try {
+//     const response = await fetch(
+//       "https://65c67a6ee5b94dfca2e195bd.mockapi.io/items"
+//     );
+//     const sneakers = await response.json();
+//     console.log(sneakers);
+//     sneakerCards.push(...sneakers);
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
+// getSneakersArray();
 
 function App() {
+  // загружаем карточки с кроссовками
+  const [items, setItems] = React.useState([]);
+
+  // загружаем карточки в корзину при клике
+  const [cartItems, setCartItems] = React.useState([]);
+
+  // открываем корзину
+  const [cartOpened, setCartOpened] = React.useState(false);
+
+  React.useEffect(
+    () =>
+      async function () {
+        try {
+          const response = await fetch(
+            "https://65c67a6ee5b94dfca2e195bd.mockapi.io/items"
+          );
+          const sneakers = await response.json();
+          setItems(sneakers);
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    []
+  );
+
   return (
     <div className="wrapper clear">
-      <Drawer />
-      <Header />
+      {cartOpened && (
+        <Drawer items={cartItems} onCloseCart={() => setCartOpened(false)} />
+      )}
+      <Header onClickCart={() => setCartOpened(true)} />
       <div className="content p-40">
         <div className="d-flex align-center justify-between mb-40">
           <h1>Все кроссовки</h1>
@@ -40,12 +61,13 @@ function App() {
         </div>
 
         <div className="d-flex flex-wrap">
-          {sneakerCards.map((card) => (
+          {items.map((card) => (
             <Card
               name={card.name}
               price={card.price}
               src={card.src}
-              onClickPlus={() => console.log(5)}
+              onClickPlus={(obj) => setCartItems((prev) => [...prev, obj])}
+              onClickFavorite={() => console.log("Добавили в закладки")}
             />
           ))}
         </div>
