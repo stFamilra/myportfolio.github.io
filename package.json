@@ -6,6 +6,7 @@
     "axios": "^1.6.7",
     "firacode": "^6.2.0",
     "macro-css": "^1.0.5",
-    "node-sass": "^9.0.0"
+    "node-sass": "^9.0.0",
+    "react-content-loader": "^6.2.1"
   }
 }

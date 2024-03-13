@@ -1,0 +1,60 @@
+@import '../variables';
+
+.sort {
+  position: relative;
+  &__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    svg {
+      margin-right: 0.5rem;
+    }
+
+    b {
+      margin-right: 0.5rem;
+    }
+
+    span {
+      color: $orange;
+      user-select: none;
+      border-bottom: 0.0625rem dashed $orange;
+      cursor: pointer;
+    }
+  }
+
+  &__popup {
+    position: absolute;
+    right: 0;
+    margin-top: 0.9375rem;
+    background: #ffffff;
+    box-shadow: 0rem 0.3125rem 0.9375rem rgba(0, 0, 0, 0.09);
+    border-radius: 0.625rem;
+    overflow: hidden;
+    padding: 0.625rem 0;
+    width: 10rem;
+
+    ul {
+      overflow: hidden;
+      li {
+        padding: 0.75rem 1.25rem;
+        cursor: pointer;
+
+        &.active,
+        &:hover {
+          background: rgba(254, 95, 30, 0.05);
+          color: $orange;
+        }
+
+        &.active {
+          font-weight: bold;
+          color: $orange;
+        }
+        &:active {
+          font-weight: bold;
+          color: $orange;
+        }
+      }
+    }
+  }
+}
